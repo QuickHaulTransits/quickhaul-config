@@ -24,11 +24,11 @@ global:
   # Lower resource limits for development
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 50m
+      memory: 64Mi
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 10m
+      memory: 32Mi
 
   # HPA disabled for development
   autoscaling:
