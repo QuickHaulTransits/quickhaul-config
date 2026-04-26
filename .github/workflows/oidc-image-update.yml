@@ -1,6 +1,17 @@
 name: GitOps - Image Tag Update (OIDC-Ready)
 
 on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       service:
@@ -36,11 +47,25 @@ jobs:
             echo "service=${{ github.event.client_payload.service }}" >> $GITHUB_OUTPUT
             echo "tag=${{ github.event.client_payload.tag }}" >> $GITHUB_OUTPUT
             echo "env=${{ github.event.client_payload.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+            echo "service=${{ inputs.service }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+            echo "env=${{ inputs.environment }}" >> $GITHUB_OUTPUT
           else
             echo "service=${{ github.event.inputs.service }}" >> $GITHUB_OUTPUT
             echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
             echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
           fi
+
+      - name: CD Gatekeeper - Trivy Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "ghcr.io/sathvik307393/quickhaul-${{ steps.vars.outputs.service }}:${{ steps.vars.outputs.tag }}"
+          format: 'table'
+          exit-code: '1' # Fail the build if vulnerabilities are found
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       - name: Update Image Tag in Helm Values
         run: |

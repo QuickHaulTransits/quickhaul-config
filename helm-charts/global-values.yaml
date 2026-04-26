@@ -1,8 +1,8 @@
 global:
-  namespace: quick-haul
+  # namespace: quick-haul (Managed by ArgoCD/Release Namespace)
   replicaCount: 2
   nodePort: 30080
-  nfsServer: "172.31.31.186"
+  nfsServer: "172.31.16.204"
   nfsPath: "/mnt/nfs/mongodb"
   
   keycloak:
@@ -18,6 +18,9 @@ global:
     frontend: "ghcr.io/sathvik307393/quickhaul-frontend:latest"
     mongodb: "mongo:latest"
     redis: "redis:latest"
+  
+  imagePullSecrets:
+    - name: regcred
 
   resources:
     limits:
