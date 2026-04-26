@@ -2,7 +2,7 @@ global:
   # namespace: quick-haul (Managed by ArgoCD/Release Namespace)
   replicaCount: 2
   nodePort: 30080
-  nfsServer: "172.31.16.204"
+  nfsServer: "172.31.41.176"
   nfsPath: "/mnt/nfs/mongodb"
   
   keycloak:
