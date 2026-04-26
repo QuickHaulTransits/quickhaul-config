@@ -1,0 +1,90 @@
+# Development Environment Values
+# Mapped to 'develop' branch
+# Namespace: quickhaul-dev
+
+global:
+  namespace: quickhaul-dev
+  environment: development
+  replicaCount: 1
+  nodePort: 30081
+  strategy:
+    type: "Deployment"
+  
+  # Development image tags - latest builds
+  images:
+    auth: "sathvik2003/quickhaul-auth:latest"
+    booking: "sathvik2003/quickhaul-booking:latest"
+    location: "sathvik2003/quickhaul-location:latest"
+    notification: "sathvik2003/quickhaul-notification:latest"
+    otp: "sathvik2003/quickhaul-otp:latest"
+    frontend: "sathvik2003/quickhaul-frontend:latest"
+    mongodb: "mongo:latest"
+    redis: "redis:latest"
+
+  # Lower resource limits for development
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # HPA disabled for development
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+
+  # Dev domain
+  domain: "dev.quickhaul.io"
+  tls:
+    enabled: false
+    issuer: "letsencrypt-staging"
+
+  # Monitoring disabled for dev
+  monitoring:
+    enabled: false
+
+# Service-specific overrides for development
+auth-service:
+  service:
+    port: 8002
+    nodePort: 30082
+  ingress:
+    enabled: false
+
+booking-service:
+  service:
+    port: 8003
+    nodePort: 30083
+  ingress:
+    enabled: false
+
+location-service:
+  service:
+    port: 8001
+    nodePort: 30084
+  ingress:
+    enabled: false
+
+notification-service:
+  service:
+    port: 8004
+    nodePort: 30085
+  ingress:
+    enabled: false
+
+otp-service:
+  service:
+    port: 8005
+    nodePort: 30086
+  ingress:
+    enabled: false
+
+frontend:
+  service:
+    port: 80
+    nodePort: 30087
+  ingress:
+    enabled: false

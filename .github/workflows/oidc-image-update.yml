@@ -1,0 +1,68 @@
+name: GitOps - Image Tag Update (OIDC-Ready)
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Microservice name (auth, booking, etc.)'
+        required: true
+      tag:
+        description: 'New image tag'
+        required: true
+      environment:
+        description: 'Environment (dev or prod)'
+        required: true
+        default: 'dev'
+  repository_dispatch:
+    types: [image-update]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  update-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Config Repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Inputs
+        id: vars
+        run: |
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "service=${{ github.event.client_payload.service }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ github.event.client_payload.tag }}" >> $GITHUB_OUTPUT
+            echo "env=${{ github.event.client_payload.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "service=${{ github.event.inputs.service }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Image Tag in Helm Values
+        run: |
+          SERVICE="${{ steps.vars.outputs.service }}"
+          TAG="${{ steps.vars.outputs.tag }}"
+          ENV="${{ steps.vars.outputs.env }}"
+          FILE="helm-charts/environments/${ENV}/values.yaml"
+          
+          echo "Updating ${SERVICE} image tag to ${TAG} in ${ENV}..."
+          
+          if [[ ! -f "$FILE" ]]; then
+            echo "Error: Environment values file $FILE not found!"
+            exit 1
+          fi
+          
+          # Update the specific service tag under global.images
+          # Matches lines like: auth: "sathvik2003/quickhaul-auth:v3"
+          sed -i "/${SERVICE}:/s/: \".*\"/: \"${TAG}\"/" ${FILE}
+          
+          # Git Push
+          git config --global user.name "QuickHaul CD Bot"
+          git config --global user.email "cd-bot@quickhaul.io"
+          git add ${FILE}
+          git commit -m "chore(gitops): update ${SERVICE} image to ${TAG} in ${ENV}"
+          git push origin main

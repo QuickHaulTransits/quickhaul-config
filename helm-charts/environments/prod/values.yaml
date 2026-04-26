@@ -1,0 +1,94 @@
+# Production Environment Values
+# Mapped to 'main' branch
+# Namespace: quickhaul-prod
+
+global:
+  namespace: quickhaul-prod
+  environment: production
+  replicaCount: 3
+  nodePort: 30080
+  strategy:
+    type: "Rollout"
+  
+  # Production image tags - stable versions
+  images:
+    auth: "sathvik2003/quickhaul-auth:stable"
+    booking: "sathvik2003/quickhaul-booking:stable"
+    location: "sathvik2003/quickhaul-location:stable"
+    notification: "sathvik2003/quickhaul-notification:stable"
+    otp: "sathvik2003/quickhaul-otp:stable"
+    frontend: "sathvik2003/quickhaul-frontend:stable"
+    mongodb: "mongo:latest"
+    redis: "redis:latest"
+
+  # Higher resource limits for production
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  # HPA settings for production
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Ingress/Domain settings
+  domain: "quickhaul.io"
+  tls:
+    enabled: true
+    issuer: "letsencrypt-prod"
+
+  # Monitoring
+  monitoring:
+    enabled: true
+    prometheus:
+      scrape: true
+
+# Service-specific overrides for production
+auth-service:
+  service:
+    port: 8002
+  ingress:
+    enabled: true
+    host: "auth.quickhaul.io"
+
+booking-service:
+  service:
+    port: 8003
+  ingress:
+    enabled: true
+    host: "booking.quickhaul.io"
+
+location-service:
+  service:
+    port: 8001
+  ingress:
+    enabled: true
+    host: "location.quickhaul.io"
+
+notification-service:
+  service:
+    port: 8004
+  ingress:
+    enabled: true
+    host: "notifications.quickhaul.io"
+
+otp-service:
+  service:
+    port: 8005
+  ingress:
+    enabled: true
+    host: "otp.quickhaul.io"
+
+frontend:
+  service:
+    port: 80
+  ingress:
+    enabled: true
+    host: "app.quickhaul.io"

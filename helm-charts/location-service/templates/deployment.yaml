@@ -1,0 +1,73 @@
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: location-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+  strategy:
+    blueGreen:
+      activeService: location-service
+      previewService: location-service-preview
+      autoPromotionEnabled: true
+{{- end }}
+  selector:
+    matchLabels:
+      app: location-service
+  template:
+    metadata:
+      labels:
+        app: location-service
+    spec:
+      containers:
+      - name: location-service
+        image: {{ .Values.global.images.location }}
+        command: ["uvicorn", "services.location_service.app:app", "--host", "0.0.0.0", "--port", "8001"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8001
+        envFrom:
+        - configMapRef:
+            name: quick-haul-config
+        - secretRef:
+            name: quick-haul-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: location-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+  selector:
+    app: location-service
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: location-service-preview
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+  selector:
+    app: location-service
+{{- end }}
