@@ -189,3 +189,27 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-dev-infra
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/quickhaul-infra
+    helm:
+      valueFiles:
+        - ../environments/dev/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

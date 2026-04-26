@@ -10,14 +10,14 @@ global:
   strategy:
     type: "Deployment"
   
-  # Development image tags - latest builds
+  # Development image tags - versioned for stability
   images:
-    auth: "sathvik2003/quickhaul-auth:latest"
-    booking: "sathvik2003/quickhaul-booking:latest"
-    location: "sathvik2003/quickhaul-location:latest"
-    notification: "sathvik2003/quickhaul-notification:latest"
-    otp: "sathvik2003/quickhaul-otp:latest"
-    frontend: "sathvik2003/quickhaul-frontend:latest"
+    auth: "ghcr.io/sathvik307393/quickhaul-auth:latest"
+    booking: "ghcr.io/sathvik307393/quickhaul-booking:latest"
+    location: "ghcr.io/sathvik307393/quickhaul-location:latest"
+    notification: "ghcr.io/sathvik307393/quickhaul-notification:latest"
+    otp: "ghcr.io/sathvik307393/quickhaul-otp:latest"
+    frontend: "ghcr.io/sathvik307393/quickhaul-frontend:latest"
     mongodb: "mongo:latest"
     redis: "redis:latest"
 
