@@ -4,7 +4,7 @@
 
 global:
   namespace: quickhaul-prod
-  environment: production
+  environment: prod
   replicaCount: 3
   nodePort: 30080
   strategy:

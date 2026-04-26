@@ -4,7 +4,7 @@
 
 global:
   namespace: quickhaul-dev
-  environment: development
+  environment: dev
   replicaCount: 1
   nodePort: 30081
   strategy:

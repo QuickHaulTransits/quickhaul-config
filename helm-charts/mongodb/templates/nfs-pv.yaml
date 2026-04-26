@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mongodb-nfs-pv
+  name: mongodb-nfs-pv-{{ .Values.global.environment }}
 spec:
   capacity:
     storage: 10Gi
@@ -9,7 +9,7 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    path: {{ .Values.global.nfsPath }}
+    path: {{ .Values.global.nfsPath }}-{{ .Values.global.environment }}
     server: {{ .Values.global.nfsServer }}
 ---
 apiVersion: v1
@@ -24,5 +24,5 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: ""
-  volumeName: mongodb-nfs-pv
+  volumeName: mongodb-nfs-pv-{{ .Values.global.environment }}
 
