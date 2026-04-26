@@ -15,12 +15,12 @@ data:
   # SMTP Settings
   SMTP_ENABLED: "true"
   SMTP_HOST: "smtp.gmail.com"
-  SMTP_PORT: "587"
+  SMTP_PORT: "465"
   SMTP_USERNAME: "sathviknbmath@gmail.com"
   SMTP_FROM_EMAIL: "sathviknbmath@gmail.com"
   SMTP_FROM_NAME: "Quick Haul Support"
-  SMTP_USE_TLS: "false"
-  SMTP_USE_STARTTLS: "true"
+  SMTP_USE_TLS: "true"
+  SMTP_USE_STARTTLS: "false"
   # Vite environment variables for frontend
   VITE_AUTH_API_URL: "/auth"
   VITE_BOOKING_API_URL: "/booking"
