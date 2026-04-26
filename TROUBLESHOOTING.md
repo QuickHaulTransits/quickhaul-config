@@ -31,6 +31,26 @@ kubectl patch pv mongodb-nfs-pv -p '{"spec":{"claimRef":null}}'
 
 ---
 
+## 🛠️ Useful Commands for your Presentation
+
+### Get ArgoCD Admin Password
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
+
+### Check Application Logs
+```bash
+kubectl logs -l app=<service-name> -n quickhaul-dev
+```
+
+### Monitor Rollout Progress (Prod)
+```bash
+kubectl argo rollouts get rollout <service-name> -n quickhaul-prod
+```
+
+
+---
+
 ## 4. Issue: Storage Collision between Dev and Prod
 **Symptoms**: Potential data corruption or lock errors when both environments are running.
 **Root Cause**: Both Dev and Prod were sharing the exact same NFS path (`/mnt/nfs/mongodb`).

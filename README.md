@@ -107,6 +107,7 @@ The repository uses `.github/workflows/oidc-image-update.yml` to handle automate
 ---
 
 ## 📞 Support & Maintenance
+*   **Get Admin Password**: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo`
 *   **Check Rollout Status**: `kubectl argo rollouts get rollout <service> -n quickhaul-prod`
 *   **Manual Sync**: Use the ArgoCD UI or `argocd app sync <app-name>`
 *   **Logs**: `kubectl logs -l app=<service> -n quickhaul-dev`
