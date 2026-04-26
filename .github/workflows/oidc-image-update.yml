@@ -64,7 +64,7 @@ jobs:
       - name: CD Gatekeeper - Trivy Security Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "ghcr.io/sathvik307393/quickhaul-${{ steps.vars.outputs.service }}:${{ steps.vars.outputs.tag }}"
+          image-ref: "ghcr.io/quickhaultransits/quickhaul-${{ steps.vars.outputs.service }}:${{ steps.vars.outputs.tag }}"
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -86,7 +86,7 @@ jobs:
           fi
           
           # Update the specific service tag under global.images using yq
-          yq -i ".global.images.\"${SERVICE}\" = \"ghcr.io/sathvik307393/quickhaul-${SERVICE}:${TAG}\"" ${FILE}
+          yq -i ".global.images.\"${SERVICE}\" = \"ghcr.io/quickhaultransits/quickhaul-${SERVICE}:${TAG}\"" ${FILE}
           
           # Git Push
           git config --global user.name "QuickHaul CD Bot"

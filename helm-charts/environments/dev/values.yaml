@@ -12,12 +12,12 @@ global:
   
   # Development image tags - versioned for stability
   images:
-    auth: "ghcr.io/sathvik307393/quickhaul-auth:latest"
-    booking: "ghcr.io/sathvik307393/quickhaul-booking:latest"
-    location: "ghcr.io/sathvik307393/quickhaul-location:latest"
-    notification: "ghcr.io/sathvik307393/quickhaul-notification:latest"
-    otp: "ghcr.io/sathvik307393/quickhaul-otp:latest"
-    frontend: "ghcr.io/sathvik307393/quickhaul-frontend:latest"
+    auth: "ghcr.io/QuickHaulTransits/quickhaul-auth:latest"
+    booking: "ghcr.io/QuickHaulTransits/quickhaul-booking:latest"
+    location: "ghcr.io/QuickHaulTransits/quickhaul-location:latest"
+    notification: "ghcr.io/QuickHaulTransits/quickhaul-notification:latest"
+    otp: "ghcr.io/QuickHaulTransits/quickhaul-otp:latest"
+    frontend: "ghcr.io/QuickHaulTransits/quickhaul-frontend:latest"
     mongodb: "mongo:latest"
     redis: "redis:latest"
 
@@ -85,6 +85,6 @@ otp-service:
 frontend:
   service:
     port: 80
-    nodePort: 30087
+    nodePort: 30080
   ingress:
     enabled: false
