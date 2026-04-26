@@ -232,7 +232,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
-    targetRevision: main
+    targetRevision: develop
     path: helm-charts/keycloak
     helm:
       valueFiles:
