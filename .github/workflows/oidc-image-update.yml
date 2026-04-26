@@ -66,7 +66,7 @@ jobs:
         with:
           image-ref: "ghcr.io/sathvik307393/quickhaul-${{ steps.vars.outputs.service }}:${{ steps.vars.outputs.tag }}"
           format: 'table'
-          exit-code: '1' # Fail the build if vulnerabilities are found
+          exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
@@ -85,9 +85,8 @@ jobs:
             exit 1
           fi
           
-          # Update the specific service tag under global.images
-          # Matches lines like: auth: "sathvik2003/quickhaul-auth:v3"
-          sed -i "/${SERVICE}:/s/: \".*\"/: \"${TAG}\"/" ${FILE}
+          # Update the specific service tag under global.images using yq
+          yq -i ".global.images.\"${SERVICE}\" = \"ghcr.io/sathvik307393/quickhaul-${SERVICE}:${TAG}\"" ${FILE}
           
           # Git Push
           git config --global user.name "QuickHaul CD Bot"
@@ -118,4 +117,4 @@ jobs:
           target: 'https://${{ needs.update-config.outputs.service }}.quickhaul.io'
           rules_file_name: '.zap/rules.tsv'
           allow_issue_writing: true
-          fail_action: false # Set to true if you want to fail the CD on DAST findings
+          fail_action: false
