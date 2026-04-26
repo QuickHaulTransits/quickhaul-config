@@ -11,6 +11,7 @@ spec:
     path: helm-charts/auth-service
     helm:
       valueFiles:
+        - ../global-values.yaml
         - ../environments/prod/values.yaml
   destination:
     server: https://kubernetes.default.svc
