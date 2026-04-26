@@ -1,0 +1,73 @@
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: auth-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+  strategy:
+    blueGreen:
+      activeService: auth-service
+      previewService: auth-service-preview
+      autoPromotionEnabled: true
+{{- end }}
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: {{ .Values.global.images.auth }}
+        command: ["uvicorn", "services.auth_service.main:app", "--host", "0.0.0.0", "--port", "8002"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8002
+        envFrom:
+        - configMapRef:
+            name: quick-haul-config
+        - secretRef:
+            name: quick-haul-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8002
+    targetPort: 8002
+  selector:
+    app: auth-service
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-preview
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8002
+    targetPort: 8002
+  selector:
+    app: auth-service
+{{- end }}

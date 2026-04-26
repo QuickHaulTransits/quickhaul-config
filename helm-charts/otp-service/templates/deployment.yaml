@@ -1,0 +1,73 @@
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: otp-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+  strategy:
+    blueGreen:
+      activeService: otp-service
+      previewService: otp-service-preview
+      autoPromotionEnabled: true
+{{- end }}
+  selector:
+    matchLabels:
+      app: otp-service
+  template:
+    metadata:
+      labels:
+        app: otp-service
+    spec:
+      containers:
+      - name: otp-service
+        image: {{ .Values.global.images.otp }}
+        command: ["uvicorn", "services.otp_service.app:app", "--host", "0.0.0.0", "--port", "8005"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8005
+        envFrom:
+        - configMapRef:
+            name: quick-haul-config
+        - secretRef:
+            name: quick-haul-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otp-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8005
+    targetPort: 8005
+  selector:
+    app: otp-service
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otp-service-preview
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8005
+    targetPort: 8005
+  selector:
+    app: otp-service
+{{- end }}

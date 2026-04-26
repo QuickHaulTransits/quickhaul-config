@@ -1,0 +1,72 @@
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: frontend
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+  strategy:
+    blueGreen:
+      activeService: frontend
+      previewService: frontend-preview
+      autoPromotionEnabled: true
+{{- end }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: {{ .Values.global.images.frontend }}
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: quick-haul-config
+        - secretRef:
+            name: quick-haul-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: frontend
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-preview
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: frontend
+{{- end }}

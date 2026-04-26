@@ -1,0 +1,73 @@
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: notification-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  replicas: {{ .Values.global.replicaCount }}
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+  strategy:
+    blueGreen:
+      activeService: notification-service
+      previewService: notification-service-preview
+      autoPromotionEnabled: true
+{{- end }}
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: {{ .Values.global.images.notification }}
+        command: ["uvicorn", "services.notification_service.app:app", "--host", "0.0.0.0", "--port", "8004"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8004
+        envFrom:
+        - configMapRef:
+            name: quick-haul-config
+        - secretRef:
+            name: quick-haul-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8004
+    targetPort: 8004
+  selector:
+    app: notification-service
+{{- if and .Values.global.strategy (eq .Values.global.strategy.type "Rollout") }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service-preview
+  namespace: {{ .Values.global.namespace | default "quick-haul" }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8004
+    targetPort: 8004
+  selector:
+    app: notification-service
+{{- end }}

@@ -1,0 +1,191 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-auth
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/auth-service
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-booking
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/booking-service
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-location
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/location-service
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-notification
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/notification-service
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-otp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/otp-service
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-frontend
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/frontend
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-mongodb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/mongodb
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quickhaul-prod-redis
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
+    targetRevision: main
+    path: helm-charts/redis
+    helm:
+      valueFiles:
+        - ../environments/prod/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quickhaul-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

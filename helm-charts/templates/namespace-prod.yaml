@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quickhaul-prod
+  labels:
+    environment: production
+    app.kubernetes.io/name: quickhaul
+    app.kubernetes.io/managed-by: helm
+  annotations:
+    description: "Production environment for QuickHaul - mapped to main branch"
