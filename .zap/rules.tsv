@@ -1,0 +1,9 @@
+# ZAP Rules File
+# Format: <ruleId>	<action>	[<notes>]
+# actions: IGNORE, INFO, LOW, MEDIUM, HIGH
+
+10035	IGNORE	# Strict-Transport-Security Header Not Set (Not needed for dev)
+10038	IGNORE	# Content Security Policy (CSP) Header Not Set
+10021	INFO	# X-Content-Type-Options Header Missing
+40012	LOW 	# Cookie Without SameSite Attribute
+10020	LOW 	# Anti-clickjacking Header (X-Frame-Options) Missing

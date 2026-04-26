@@ -1,94 +1,112 @@
-# QuickHaul GitOps Configuration
+# 🚚 QuickHaul GitOps & Continuous Delivery
 
-This repository serves as the **Source of Truth** for the QuickHaul microservices deployment. It utilizes a GitOps pattern with **ArgoCD** for continuous delivery and **Argo Rollouts** for zero-downtime Blue-Green deployments in production.
-
-## 🚀 Architecture Overview
-
-*   **Helm Charts**: Located in `helm-charts/`, providing templated Kubernetes manifests.
-*   **Environment Separation**: Managed via `helm-charts/environments/` (Dev vs Prod).
-*   **CD Engine**: ArgoCD automates synchronization between this repo and the cluster.
-*   **Deployment Strategy**: 
-    *   **Dev**: Standard rolling updates (`Deployment`).
-    *   **Prod**: Zero-downtime Blue-Green updates (`Rollout`).
+This repository serves as the **Source of Truth** for the QuickHaul microservices ecosystem. It implements a state-of-the-art GitOps workflow using **ArgoCD**, **Argo Rollouts**, and **GitHub Actions** to ensure secure, automated, and zero-downtime deployments.
 
 ---
 
-## 🛠️ Infrastructure Setup
+## 🏗️ System Architecture
 
-Before connecting this repository to your cluster, you must install the following controllers.
+```mermaid
+graph TD
+    subgraph "CI (Service Repos)"
+        A[Code Push] --> B[GitHub Actions]
+        B --> C[Docker Build]
+        C --> D[Push to GHCR]
+    end
 
-### 1. Install ArgoCD
-ArgoCD should be installed in a dedicated namespace. It manages the lifecycle of all applications.
+    subgraph "CD (Config Repo)"
+        E[OIDC Trigger] --> F[Trivy Security Scan]
+        F --> G[Helm Tag Update]
+        G --> H[Git Commit/Push]
+    end
 
-```bash
-# Create namespace
-kubectl create namespace argocd
-
-# Install ArgoCD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Access the UI (Port-forward for local access)
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+    subgraph "GitOps (K8s Cluster)"
+        H --> I[ArgoCD Controller]
+        I --> J{Environment?}
+        J -->|Dev| K[Standard Deployment]
+        J -->|Prod| L[Argo Rollouts Blue-Green]
+        K --> M[DAST Security Scan]
+        L --> M
+    end
 ```
 
-### 2. Install Argo Rollouts
-Argo Rollouts is required to handle the Blue-Green deployment strategy used in the production namespace.
+---
 
+## 🚀 The 6 Pillars of QuickHaul CD
+
+| Pillar | Technology | Purpose |
+| :--- | :--- | :--- |
+| **1. Security Gate** | **Trivy** | Automated image scanning for CRITICAL/HIGH vulnerabilities before deployment. |
+| **2. Automated Sync** | **Helm & Git** | CD workflow automatically updates `values.yaml` image tags based on CI triggers. |
+| **3. Secure Auth** | **OIDC** | Secret-less authentication between GitHub and the Cluster/Registry. |
+| **4. GitOps Engine** | **ArgoCD** | Continuously synchronizes the cluster state with this repository. |
+| **5. Runtime Security** | **DAST (OWASP ZAP)** | Dynamic scanning of live endpoints after every deployment to find runtime flaws. |
+| **6. Zero-Downtime** | **Argo Rollouts** | Implements Blue-Green deployments in Production for instant rollbacks. |
+
+---
+
+## 🌐 Environments
+
+| Feature | Development (`quickhaul-dev`) | Production (`quickhaul-prod`) |
+| :--- | :--- | :--- |
+| **Strategy** | Rolling Update (Standard) | Blue-Green (Argo Rollouts) |
+| **Replicas** | 1 per service | 3 per service (High Availability) |
+| **Namespace** | `quickhaul-dev` | `quickhaul-prod` |
+| **Storage Path** | `/mnt/nfs/mongodb-dev` | `/mnt/nfs/mongodb-prod` |
+| **Security** | Internal Scans | Internal + Public DAST Scans |
+
+---
+
+## 🛠️ Cluster Bootstrapping
+
+To set up a new cluster from scratch, follow these steps in order:
+
+### 1. Initialize Namespaces & Secrets
 ```bash
-# Create namespace
-kubectl create namespace argo-rollouts
+# Create Namespaces
+kubectl apply -f helm-charts/templates/namespace-dev.yaml
+kubectl apply -f helm-charts/templates/namespace-prod.yaml
 
-# Install Argo Rollouts Controller
+# Create Image Pull Secrets (Required for Private GHCR)
+kubectl create secret docker-registry regcred \
+  --docker-server=ghcr.io \
+  --docker-username=<user> \
+  --docker-password=<pat> \
+  --namespace=quickhaul-dev
+```
+
+### 2. Install Controllers
+```bash
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Install Argo Rollouts
+kubectl create namespace argo-rollouts
 kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
 ```
 
-### 3. Node Placement Recommendation
-Since you have **1 Master and 2 Worker nodes**:
-*   **Master Node**: Keep this dedicated to the Kubernetes Control Plane (API Server, Scheduler, etc.). This ensures stability for the cluster core.
-*   **Worker Nodes**: Both ArgoCD and Argo Rollouts should be scheduled on your **Worker Nodes**. Kubernetes does this by default if your master node is tainted. These components are critical but are still considered workloads.
-
----
-
-## 📦 Connecting to ArgoCD
-
-Once the controllers are installed, you can bootstrap the entire QuickHaul stack by applying the application manifests:
-
-### Dev Environment
+### 3. Deploy Applications
 ```bash
 kubectl apply -f argocd-apps/dev-apps.yaml
-```
-
-### Prod Environment
-```bash
 kubectl apply -f argocd-apps/prod-apps.yaml
 ```
 
 ---
 
-## 🔐 Security & OIDC
+## 🔐 Security Integration
 
-### Keycloak Integration
-The microservices are configured to use Keycloak for OIDC authentication. The configuration is managed in `helm-charts/global-values.yaml`.
-
-*   **Issuer URL**: `https://auth.quickhaul.com/auth/realms/QuickHaul`
-*   **Client ID**: `quickhaul-services`
-
-### Automated Image Updates (No Secrets)
-This repository supports **OIDC-based image updates**. Application repositories (like `notification-service`) can update their image tags here without using static GitHub Secrets by utilizing the `.github/workflows/oidc-image-update.yml` workflow.
-
----
-
-## 🔄 Development Workflow
-
-1.  **Code Change**: Developers push to microservice repositories.
-2.  **CI**: GitHub Actions builds the image and pushes to Docker Hub.
-3.  **CD Trigger**: CI triggers the `oidc-image-update` workflow in this repo.
-4.  **GitOps**: ArgoCD detects the change in `values.yaml` and syncs the cluster.
-5.  **Rollout**: If in Prod, Argo Rollouts performs a Blue-Green transition.
+### OIDC & Image Updates
+The repository uses `.github/workflows/oidc-image-update.yml` to handle automated image updates. This workflow:
+1.  Verifies the caller via OIDC.
+2.  Runs a **Trivy** scan.
+3.  Updates the Helm chart.
+4.  Waits for ArgoCD sync.
+5.  Runs an **OWASP ZAP Full Scan (DAST)** against the live environment.
 
 ---
 
-## 📞 Troubleshooting
-
-*   **Check Rollout Status**: `kubectl argo rollouts get rollout <service-name> -n quickhaul-prod`
-*   **ArgoCD Sync Issues**: Check the ArgoCD UI or logs: `kubectl logs -n argocd deployment/argocd-repo-server`
+## 📞 Support & Maintenance
+*   **Check Rollout Status**: `kubectl argo rollouts get rollout <service> -n quickhaul-prod`
+*   **Manual Sync**: Use the ArgoCD UI or `argocd app sync <app-name>`
+*   **Logs**: `kubectl logs -l app=<service> -n quickhaul-dev`
