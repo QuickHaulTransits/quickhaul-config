@@ -2,7 +2,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: quickhaul-gateway
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   gatewayClassName: eg
   listeners:
@@ -25,14 +25,14 @@ spec:
     targetPort: 10080
     nodePort: {{ .Values.global.nodePort }}
   selector:
-    gateway.envoyproxy.io/owning-gateway-namespace: quick-haul
+    gateway.envoyproxy.io/owning-gateway-namespace: {{ .Values.global.namespace }}
     gateway.envoyproxy.io/owning-gateway-name: quickhaul-gateway
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: auth-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
@@ -55,7 +55,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: booking-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
@@ -91,7 +91,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: location-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
@@ -127,7 +127,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: notification-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
@@ -150,7 +150,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: otp-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
@@ -173,7 +173,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: frontend-route
-  namespace: quick-haul
+  namespace: {{ .Values.global.namespace }}
 spec:
   parentRefs:
   - name: quickhaul-gateway
