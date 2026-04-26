@@ -12,12 +12,12 @@ global:
   
   # Production image tags - stable versions
   images:
-    auth: "ghcr.io/sathvik307393/quickhaul-auth:stable"
-    booking: "ghcr.io/sathvik307393/quickhaul-booking:stable"
-    location: "ghcr.io/sathvik307393/quickhaul-location:stable"
-    notification: "ghcr.io/sathvik307393/quickhaul-notification:stable"
-    otp: "ghcr.io/sathvik307393/quickhaul-otp:stable"
-    frontend: "ghcr.io/sathvik307393/quickhaul-frontend:stable"
+    auth: "ghcr.io/quickhaultransits/quickhaul-auth:stable"
+    booking: "ghcr.io/quickhaultransits/quickhaul-booking:stable"
+    location: "ghcr.io/quickhaultransits/quickhaul-location:stable"
+    notification: "ghcr.io/quickhaultransits/quickhaul-notification:stable"
+    otp: "ghcr.io/quickhaultransits/quickhaul-otp:stable"
+    frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:stable"
     mongodb: "mongo:latest"
     redis: "redis:latest"
 
