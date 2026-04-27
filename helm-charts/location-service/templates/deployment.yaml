@@ -32,7 +32,7 @@ spec:
       containers:
       - name: location-service
         image: {{ .Values.global.images.location }}
-        command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8001"]
+        command: ["uvicorn", "services.location_service.app:app", "--host", "0.0.0.0", "--port", "8001"]
         resources:
           requests:
             cpu: "100m"
