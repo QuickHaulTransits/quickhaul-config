@@ -65,6 +65,13 @@ spec:
               key: MONGO_ROOT_PASSWORD
         - name: MONGODB_REPLICA_SET_MODE
           value: "primary"
+        - name: MONGODB_REPLICA_SET_NAME
+          value: "rs0"
+        - name: MONGODB_REPLICA_SET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: quick-haul-secrets
+              key: MONGODB_REPLICA_SET_KEY
         - name: MONGODB_ADVERTISED_HOSTNAME
           valueFrom:
             fieldRef:
