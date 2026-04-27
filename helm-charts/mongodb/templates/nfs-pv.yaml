@@ -1,28 +1,18 @@
+{{- $replicas := .Values.global.replicaCount | default 1 -}}
+{{- range $i := until (int $replicas) -}}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mongodb-nfs-pv-{{ .Values.global.environment }}
+  name: mongodb-nfs-pv-{{ $.Values.global.environment }}-{{ $i }}
 spec:
   capacity:
     storage: 10Gi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: "mongodb-nfs"
   nfs:
-    path: {{ .Values.global.nfsPath }}-{{ .Values.global.environment }}
-    server: {{ .Values.global.nfsServer }}
+    path: {{ $.Values.global.nfsPath }}-{{ $.Values.global.environment }}/node-{{ $i }}
+    server: {{ $.Values.global.nfsServer }}
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongodb-nfs-pvc
-  namespace: {{ .Release.Namespace }}
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: ""
-  volumeName: mongodb-nfs-pv-{{ .Values.global.environment }}
-
+{{- end -}}

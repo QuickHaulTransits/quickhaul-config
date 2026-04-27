@@ -84,7 +84,8 @@ spec:
   - metadata:
       name: datadir
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteMany" ]
+      storageClassName: "mongodb-nfs"
       resources:
         requests:
           storage: 10Gi
