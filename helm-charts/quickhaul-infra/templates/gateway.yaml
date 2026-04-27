@@ -40,6 +40,19 @@ spec:
   - matches:
     - path:
         type: PathPrefix
+        value: /api/auth/
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /auth/
+    backendRefs:
+    - name: auth-service
+      port: 8002
+  - matches:
+    - path:
+        type: PathPrefix
         value: /api/auth
     filters:
     - type: URLRewrite
@@ -63,7 +76,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/booking
+        value: /api/booking/
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -76,7 +89,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/bookings
+        value: /api/bookings/
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -99,7 +112,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/location
+        value: /api/location/
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -112,7 +125,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/locations
+        value: /api/locations/
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -135,7 +148,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/notify
+        value: /api/notify/
     filters:
     - type: URLRewrite
       urlRewrite:
@@ -158,7 +171,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /api/otp
+        value: /api/otp/
     filters:
     - type: URLRewrite
       urlRewrite:
