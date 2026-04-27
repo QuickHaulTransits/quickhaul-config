@@ -18,7 +18,7 @@ global:
     notification: "ghcr.io/quickhaultransits/quickhaul-notification:latest"
     otp: "ghcr.io/quickhaultransits/quickhaul-otp:latest"
     frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:latest"
-l    mongodb: "mongo:latest"
+    mongodb: "mongo:latest"
     redis: "redis:latest"
 
   # Higher resource limits for production
