@@ -1,0 +1,90 @@
+{
+  "annotations": { "list": [ { "builtIn": 1, "datasource": "-- Grafana --", "enable": true, "hide": true, "name": "Annotations & Alerts", "type": "dashboard" } ] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "QuickHaul Fleet Service Health",
+      "type": "row"
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 2,
+      "title": "Auth",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"auth-service\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 3,
+      "title": "Booking",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"booking-service\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 4,
+      "title": "Location",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"location-service\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 5,
+      "title": "OTP",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"otp-service\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 6,
+      "title": "Frontend",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"frontend\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "id": 7,
+      "title": "DB (Mongo)",
+      "type": "stat",
+      "targets": [ { "expr": "count(kube_pod_container_status_running{namespace=\"quickhaul-dev\", container=\"mongodb\"})", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] } } }
+    },
+    {
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "right" } },
+      "title": "Live Fleet Activity (Network Traffic)",
+      "type": "timeseries",
+      "targets": [ { "expr": "sum by (pod) (rate(container_network_receive_bytes_total{namespace=\"quickhaul-dev\"}[5m]))", "legendFormat": "{{pod}}", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "drawStyle": "line", "lineInterpolation": "smooth" } } }
+    },
+    {
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 13 },
+      "id": 9,
+      "title": "System Stability Index",
+      "type": "gauge",
+      "targets": [ { "expr": "avg(kube_pod_container_status_running{namespace=\"quickhaul-dev\"}) * 100", "refId": "A" } ],
+      "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "yellow", "value": 70 }, { "color": "green", "value": 90 } ] } } }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "timezone": "browser",
+  "title": "QuickHaul Operations Mission Control",
+  "uid": "quickhaul-final-ops",
+  "version": 1
+}
