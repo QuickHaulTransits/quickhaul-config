@@ -51,7 +51,7 @@ spec:
       {{- end }}
       containers:
       - name: mongodb
-        image: {{ .Values.global.images.mongodb }}
+        image: "mongo:latest"
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
