@@ -13,7 +13,7 @@ global:
     notification: "ghcr.io/quickhaultransits/quickhaul-notification:latest"
     otp: "ghcr.io/quickhaultransits/quickhaul-otp:latest"
     frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:latest"
-    mongodb: "mongo:latest"
+    mongodb: "bitnami/mongodb:latest"
     redis: "redis:latest"
 
   

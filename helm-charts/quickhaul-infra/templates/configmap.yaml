@@ -4,8 +4,8 @@ metadata:
   name: quick-haul-config
   namespace: {{ .Release.Namespace }}
 data:
-  MONGO_URI: "mongodb://10.98.46.110:27017"
-  REDIS_URL: "redis://10.111.170.146:6379/0"
+  MONGO_URI: "mongodb://mongodb:27017"
+  REDIS_URL: "redis://redis:6379/0"
   AUTH_SERVICE_URL: "http://auth-service:8002"
   BOOKING_SERVICE_URL: "http://booking-service:8003"
   LOCATION_SERVICE_URL: "http://location-service:8001"

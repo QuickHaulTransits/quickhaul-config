@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mongodb
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+    name: mongodb
+  selector:
+    app: mongodb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-headless
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    name: mongodb
+  selector:
+    app: mongodb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: "mongodb-headless"
+  replicas: {{ .Values.global.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: mongodb
+        image: {{ .Values.global.images.mongodb }}
+        env:
+        - name: MONGODB_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: quick-haul-secrets
+              key: MONGO_ROOT_USERNAME
+        - name: MONGODB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: quick-haul-secrets
+              key: MONGO_ROOT_PASSWORD
+        - name: MONGODB_REPLICA_SET_MODE
+          value: "primary"
+        - name: MONGODB_ADVERTISED_HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        envFrom:
+        - secretRef:
+            name: quick-haul-secrets
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        resources:
+          {{- toYaml .Values.global.resources | nindent 10 }}
+        volumeMounts:
+        - name: datadir
+          mountPath: /bitnami/mongodb
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
