@@ -222,28 +222,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: quickhaul-prod-keycloak
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/QuickHaulTransits/quickhaul-config.git
-    targetRevision: main
-    path: helm-charts/keycloak
-    helm:
-      valueFiles:
-        - ../global-values.yaml
-        - ../environments/prod/values.yaml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: quickhaul-prod
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+

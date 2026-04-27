@@ -22,9 +22,9 @@ data:
   SMTP_USE_TLS: "true"
   SMTP_USE_STARTTLS: "false"
   # Vite environment variables for frontend
-  VITE_AUTH_API_URL: "/auth"
-  VITE_BOOKING_API_URL: "/booking"
-  VITE_LOCATION_API_URL: "/location"
-  VITE_NOTIFICATION_API_URL: "/notify"
-  VITE_OTP_API_URL: "/otp"
+  VITE_AUTH_API_URL: "/api/auth"
+  VITE_BOOKING_API_URL: "/api/booking"
+  VITE_LOCATION_API_URL: "/api/location"
+  VITE_NOTIFICATION_API_URL: "/api/notify"
+  VITE_OTP_API_URL: "/api/otp"
 

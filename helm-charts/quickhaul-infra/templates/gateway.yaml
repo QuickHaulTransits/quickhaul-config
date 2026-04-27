@@ -46,7 +46,7 @@ spec:
       urlRewrite:
         path:
           type: ReplacePrefixMatch
-          replacePrefixMatch: /auth
+          replacePrefixMatch: /
     backendRefs:
     - name: auth-service
       port: 8002

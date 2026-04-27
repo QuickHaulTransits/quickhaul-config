@@ -5,9 +5,6 @@ global:
   nfsServer: "172.31.41.176"
   nfsPath: "/mnt/nfs/mongodb"
   
-  keycloak:
-    issuerUrl: "https://auth.quickhaul.com/auth/realms/QuickHaul"
-    clientId: "quickhaul-services"
   
   images:
     auth: "ghcr.io/quickhaultransits/quickhaul-auth:latest"
