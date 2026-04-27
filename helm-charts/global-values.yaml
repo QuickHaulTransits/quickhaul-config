@@ -10,12 +10,12 @@ global:
     clientId: "quickhaul-services"
   
   images:
-    auth: "ghcr.io/quickhaultransits/quickhaul-auth:latest"
-    booking: "ghcr.io/quickhaultransits/quickhaul-booking:latest"
-    location: "ghcr.io/quickhaultransits/quickhaul-location:latest"
-    notification: "ghcr.io/quickhaultransits/quickhaul-notification:latest"
-    otp: "ghcr.io/quickhaultransits/quickhaul-otp:latest"
-    frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:latest"
+    auth: "ghcr.io/sathvik307393/quickhaul-auth:latest"
+    booking: "ghcr.io/sathvik307393/quickhaul-booking:latest"
+    location: "ghcr.io/sathvik307393/quickhaul-location:latest"
+    notification: "ghcr.io/sathvik307393/quickhaul-notification:latest"
+    otp: "ghcr.io/sathvik307393/quickhaul-otp:latest"
+    frontend: "ghcr.io/sathvik307393/quickhaul-frontend:latest"
     mongodb: "mongo:latest"
     redis: "redis:latest"
   
