@@ -45,8 +45,6 @@ spec:
       labels:
         app: mongodb
     spec:
-      securityContext:
-        fsGroup: 1001
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
@@ -55,32 +53,16 @@ spec:
       - name: mongodb
         image: {{ .Values.global.images.mongodb }}
         env:
-        - name: MONGODB_ROOT_USER
+        - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
               name: quick-haul-secrets
               key: MONGO_ROOT_USERNAME
-        - name: MONGODB_ROOT_PASSWORD
+        - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: quick-haul-secrets
               key: MONGO_ROOT_PASSWORD
-        - name: MONGODB_REPLICA_SET_MODE
-          value: "primary"
-        - name: MONGODB_REPLICA_SET_NAME
-          value: "rs0"
-        - name: MONGODB_REPLICA_SET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: quick-haul-secrets
-              key: MONGODB_REPLICA_SET_KEY
-        - name: MONGODB_ADVERTISED_HOSTNAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        envFrom:
-        - secretRef:
-            name: quick-haul-secrets
         ports:
         - containerPort: 27017
           name: mongodb
@@ -88,7 +70,7 @@ spec:
           {{- toYaml .Values.global.resources | nindent 10 }}
         volumeMounts:
         - name: datadir
-          mountPath: /bitnami/mongodb
+          mountPath: /data/db
   volumeClaimTemplates:
   - metadata:
       name: datadir
@@ -98,4 +80,3 @@ spec:
       resources:
         requests:
           storage: 10Gi
-#
