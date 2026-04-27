@@ -45,6 +45,8 @@ spec:
       labels:
         app: mongodb
     spec:
+      securityContext:
+        fsGroup: 1001
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
