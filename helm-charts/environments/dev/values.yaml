@@ -18,17 +18,17 @@ global:
     notification: "ghcr.io/quickhaultransits/quickhaul-notification:latest"
     otp: "ghcr.io/quickhaultransits/quickhaul-otp:latest"
     frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:latest"
-    mongodb: "mongo:latest"
+    mongodb: "bitnami/mongodb:latest"
     redis: "redis:latest"
 
-  # Lower resource limits for development
+  # Reasonable resource limits for development
   resources:
     limits:
-      cpu: 50m
-      memory: 64Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
-      cpu: 10m
-      memory: 32Mi
+      cpu: 200m
+      memory: 256Mi
 
   # HPA disabled for development
   autoscaling:
