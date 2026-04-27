@@ -6,6 +6,10 @@ metadata:
 data:
   MONGO_URI: "mongodb://mongodb:27017"
   MONGODB_URL: "mongodb://mongodb:27017"
+  MONGODB_URI: "mongodb://mongodb:27017"
+  MONGO_URL: "mongodb://mongodb:27017"
+  MONGO_HOST: "mongodb"
+  MONGO_PORT: "27017"
   REDIS_URL: "redis://redis:6379/0"
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
