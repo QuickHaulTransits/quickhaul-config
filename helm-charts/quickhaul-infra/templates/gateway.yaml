@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: envoy-gateway-nodeport
+  name: envoy-gateway-nodeport-{{ .Release.Namespace }}
   namespace: envoy-gateway-system
 spec:
   type: NodePort
