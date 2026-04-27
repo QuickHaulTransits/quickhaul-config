@@ -1,74 +1,67 @@
-# 🛠️ QuickHaul CD Troubleshooting Guide
+# QuickHaul Kubernetes Cluster Troubleshooting Guide
 
-This document captures the real-world issues encountered during the implementation of the QuickHaul CD pipeline and the solutions applied.
+This document captures the critical issues and solutions found during the setup of the QuickHaul production and development environments.
 
----
-
-## 1. Issue: `ImagePullBackOff` (403 Forbidden)
-**Symptoms**: Pods fail to start, `kubectl describe` shows "403 Forbidden" when pulling from `ghcr.io`.
-**Root Cause**: GitHub Container Registry (GHCR) packages were set to private, and the Kubernetes cluster lacked credentials to pull them.
-**Solution**:
-1.  Created a `docker-registry` secret named `regcred` in both `quickhaul-dev` and `quickhaul-prod` namespaces using a GitHub PAT.
-2.  Updated `global-values.yaml` to include `imagePullSecrets`.
-3.  Standardized all Helm templates to include the `imagePullSecrets` block in the Pod specification.
-
----
-
-## 2. Issue: `ModuleNotFoundError: No module named 'services'`
-**Symptoms**: Pods enter `CrashLoopBackOff`, and logs show Python failing to find the `services` module.
-**Root Cause**: The Docker image structure copied code to the root (`/app`), but the Helm charts were prefixing the `uvicorn` command with `services.[service_name].`.
-**Solution**: Updated the `command` in all `deployment.yaml` templates to point directly to the module at the root (e.g., `main:app` or `app:app`).
-
----
-
-## 3. Issue: MongoDB PV stuck in `Released` status
-**Symptoms**: MongoDB PVC stays `Pending`, and the PV shows status `Released`.
-**Root Cause**: The PV had a `Retain` reclaim policy and was still "bound" to a deleted namespace/claim reference.
-**Solution**: Patched the PV to clear the `claimRef`, making it `Available` for the new namespace:
+## 1. ArgoCD Internal Communication Errors
+### Issue: `i/o timeout` between Controller and Redis/Repo-Server
+**Symptoms:** 
+- ArgoCD dashboard shows "OutOfSync" or "Unknown".
+- Logs show timeouts connecting to `argocd-redis` or `argocd-repo-server`.
+**Cause:** 
+- Inter-node networking failure (CNI/Weave issue) preventing pods on different nodes from communicating.
+**Solution:**
+- **Co-location:** Force critical ArgoCD components onto the same node as the `application-controller`.
 ```bash
-kubectl patch pv mongodb-nfs-pv -p '{"spec":{"claimRef":null}}'
+# Example: Move Redis to the controller node
+kubectl patch deployment argocd-redis -n argocd -p '{"spec": {"template": {"spec": {"nodeName": "ip-172-31-32-69"}}}}'
 ```
 
 ---
 
-## 🛠️ Useful Commands for your Presentation
-
-### Get ArgoCD Admin Password
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-```
-
-### Check Application Logs
-```bash
-kubectl logs -l app=<service-name> -n quickhaul-dev
-```
-
-### Monitor Rollout Progress (Prod)
-```bash
-kubectl argo rollouts get rollout <service-name> -n quickhaul-prod
-```
-
+## 2. Kubernetes Storage (NFS) Mount Failures
+### Issue: `MountVolume.SetUp failed ... exit status 32`
+**Symptoms:** 
+- Pods stuck in `ContainerCreating`.
+- Events show `mount failed: exit status 32`.
+**Solution Checklist:**
+1. **Tooling:** Install `nfs-common` on ALL worker nodes:
+   `sudo apt-get install nfs-common -y`
+2. **Networking:** Open **Port 2049 (NFS)** in the Master Node's AWS Security Group.
+3. **Configuration:** Ensure `global-values.yaml` points to the correct Master Node IP:
+   `nfsServer: "172.31.41.176"`
+4. **Lifecycle:** If a PV is stuck in `Terminating`, force delete it:
+   `kubectl patch pv <pv-name> -p '{"metadata":{"finalizers":null}}' --type=merge`
 
 ---
 
-## 4. Issue: Storage Collision between Dev and Prod
-**Symptoms**: Potential data corruption or lock errors when both environments are running.
-**Root Cause**: Both Dev and Prod were sharing the exact same NFS path (`/mnt/nfs/mongodb`).
-**Solution**:
-1.  Created separate directories on the NFS server: `/mnt/nfs/mongodb-dev` and `/mnt/nfs/mongodb-prod`.
-2.  Updated `nfs-pv.yaml` to use dynamic naming based on `{{ .Values.global.environment }}`.
-3.  Mapped `dev` and `prod` environment variables in the respective `values.yaml` files.
+## 3. Invalid Image Names (Case Sensitivity)
+### Issue: `InvalidImageName` or `ImagePullBackOff`
+**Symptoms:** 
+- Pods fail to start with name validation errors.
+**Cause:** 
+- Kubernetes requires all container image names to be **lowercase**, even if the GitHub Organization name (GHCR) has uppercase letters.
+**Solution:**
+- Update `global-values.yaml` to use lowercase paths:
+  `ghcr.io/quickhaultransits/...` (instead of `QuickHaulTransits`)
+- Ensure changes are pushed to both `develop` and `main` branches.
 
 ---
 
-## 5. Issue: Hardcoded Namespaces in Templates
-**Symptoms**: Resources being created in the wrong namespace (e.g., `quick-haul`) regardless of ArgoCD settings.
-**Root Cause**: Many Helm templates had `namespace: quick-haul` hardcoded in their metadata.
-**Solution**: Standardized all templates to use `namespace: {{ .Release.Namespace }}`, ensuring they follow the destination defined in the ArgoCD Application manifest.
+## 4. ArgoCD Sync Freeze
+### Issue: ArgoCD doesn't see new GitHub commits
+**Symptoms:** 
+- `git log` shows a new hash, but `kubectl get app` shows an old one.
+**Solution:**
+- Restart the Repo Server to clear its local git cache:
+  `kubectl rollout restart deployment argocd-repo-server -n argocd`
+- Perform a "Hard Refresh" in the UI or via CLI.
 
 ---
 
-## 6. Issue: NFS Server Connection Failure
-**Symptoms**: MongoDB pods stuck in `ContainerCreating` or `Pending`.
-**Root Cause**: The original NFS instance was down, and the IP in `global-values.yaml` was stale.
-**Solution**: Provisioned a new NFS EC2 instance, configured `nfs-kernel-server`, and updated the `nfsServer` IP in the global configuration repo.
+## 5. Missing Production Resources
+### Issue: Prod apps show as "Missing" in ArgoCD
+**Cause:** 
+- Missing Custom Resource Definitions (CRDs) for Argo Rollouts.
+**Solution:**
+- Install the Rollout controller:
+  `kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml`
