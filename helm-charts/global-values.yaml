@@ -4,10 +4,8 @@ global:
   nodePort: 30080
   nfsServer: "172.31.41.176"
   nfsPath: "/mnt/nfs/mongodb"
-  
-  
   images:
-    auth: "ghcr.io/quickhaultransits/quickhaul-auth:latest"
+    auth: "ghcr.io/quickhaultransits/quickhaul-auth:04c1f2533dba442fd355efbcc7013e4e506e1792"
     booking: "ghcr.io/quickhaultransits/quickhaul-booking:latest"
     location: "ghcr.io/quickhaultransits/quickhaul-location:latest"
     notification: "ghcr.io/quickhaultransits/quickhaul-notification:latest"
@@ -15,11 +13,8 @@ global:
     frontend: "ghcr.io/quickhaultransits/quickhaul-frontend:latest"
     mongodb: "mongo:latest"
     redis: "redis:latest"
-
-  
   imagePullSecrets:
     - name: regcred
-
   resources:
     limits:
       cpu: 500m
